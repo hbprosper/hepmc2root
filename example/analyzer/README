@@ -1,0 +1,88 @@
+Created: Mon Dec  4 00:43:33 2017
+
+    o First add lib and python directories to LD_LIBRARY_PATH and PYTHONPATH,
+      respectively, by doing
+
+      source setup.sh  (assuming a bash shell)
+
+    o To build all programs do
+
+      make
+
+      This will first build lib/libtnm.so from the codes in src, then
+      build all the programs in the current directory, linked against the
+      shared library.
+
+
+    o To run the program, first create a text file (default name=filelist.txt)
+    containing a list of the ntuples to be analyzed, one filename per line.
+    Then do
+
+      ./analyzer
+
+    If you wish to specify a different file list, say datafile.list, do
+
+      ./analyzer datafile.list
+
+    If you wish to change the name of the root output file, say
+    datahist.root, do
+
+       ./analyzer datafile.list datahist.root
+
+For details, please refer to the documentation at:
+
+    https://twiki.cern.ch/twiki/bin/viewauth/CMS/TheNtupleMaker
+
+Notes 1
+-------
+    1. Use
+    outputFile of(cl.outputfile, ev)
+
+    where "ev" is the eventBuffer, if you wish to skim events to the output
+    file in addition to writing out histograms. The current event is written
+    to the file using
+
+    of.write(event-weight) 
+
+    where "of" is the output file. If omitted, the event-weight is
+    taken to be 1.
+
+    2. Use
+    of.count(cut-name, event-weight)
+    
+    to keep track, in the count histogram, of the number of events passing
+    a given cut. If omitted, the event-weight is taken to be 1. If you want
+    the counts in the count histogram to appear in a given order, specify
+    the order, before entering the event loop, as in the example below
+    
+    of.count("NoCuts", 0)
+    of.count("GoodEvent", 0)
+    of.count("Vertex", 0)
+    of.count("MET", 0)
+    
+Notes 2
+-------
+    By default, when an event is written to the output file, all variables are
+    written. However, before the event loop, you can use
+
+    ev.select(objectname)
+
+    e.g.,
+
+    ev.select("GenParticle")
+
+    to declare that you intend to select objects of this type. The
+    selection is done, within the event loop, using
+
+    ev.select(objectname, index)
+
+    e.g.,
+
+    ev.select("GenParticle", 3),
+
+    which specifies that object 3 of GenParticle is to be kept. 
+
+    NB: If you declare your intention to select objects of a given type
+        by calling select(objectname), but subsequently fail to select
+        them using select(objectname, index) then no objects of this
+        type will be kept!

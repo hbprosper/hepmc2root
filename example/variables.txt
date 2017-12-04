@@ -1,0 +1,33 @@
+tree: Events	Mon Dec  4 00:43:21 2017
+
+double/Event_alphaQCD/Event_alphaQCD/1 
+double/Event_alphaQED/Event_alphaQED/1 
+int/Event_barcodeBP1/Event_barcodeBP1/1 
+int/Event_barcodeBP2/Event_barcodeBP2/1 
+int/Event_barcodeSPV/Event_barcodeSPV/1 
+int/Event_number/Event_number/1 
+int/Event_numberMP/Event_numberMP/1 
+int/Event_numberP/Event_numberP/1  *
+int/Event_numberV/Event_numberV/1 
+double/Event_scale/Event_scale/1 
+double/PDF_Q2/PDF_Q2/1 
+int/PDF_id1/PDF_id1/1 
+int/PDF_id2/PDF_id2/1 
+int/PDF_parton1/PDF_parton1/1 
+int/PDF_parton2/PDF_parton2/1 
+double/PDF_x1/PDF_x1/1 
+double/PDF_x1f/PDF_x1f/1 
+double/PDF_x2/PDF_x2/1 
+double/PDF_x2f/PDF_x2f/1 
+double/Particle_barcode/Particle_barcode/5937 Event_numberP
+int/Particle_d1/Particle_d1/5937 Event_numberP
+int/Particle_d2/Particle_d2/5937 Event_numberP
+double/Particle_energy/Particle_energy/5937 Event_numberP
+double/Particle_mass/Particle_mass/5937 Event_numberP
+int/Particle_pid/Particle_pid/5937 Event_numberP
+double/Particle_px/Particle_px/5937 Event_numberP
+double/Particle_py/Particle_py/5937 Event_numberP
+double/Particle_pz/Particle_pz/5937 Event_numberP
+int/Particle_status/Particle_status/5937 Event_numberP
+double/Xsection_error/Xsection_error/1 
+double/Xsection_value/Xsection_value/1 
