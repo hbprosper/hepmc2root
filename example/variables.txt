@@ -1,4 +1,4 @@
-tree: Events	Mon Dec  4 00:43:21 2017
+tree: Events	Mon Dec  4 16:20:11 2017
 
 double/Event_alphaQCD/Event_alphaQCD/1 
 double/Event_alphaQED/Event_alphaQED/1 
@@ -20,6 +20,7 @@ double/PDF_x1f/PDF_x1f/1
 double/PDF_x2/PDF_x2/1 
 double/PDF_x2f/PDF_x2f/1 
 double/Particle_barcode/Particle_barcode/5937 Event_numberP
+double/Particle_ctau/Particle_ctau/5937 Event_numberP
 int/Particle_d1/Particle_d1/5937 Event_numberP
 int/Particle_d2/Particle_d2/5937 Event_numberP
 double/Particle_energy/Particle_energy/5937 Event_numberP
@@ -29,5 +30,8 @@ double/Particle_px/Particle_px/5937 Event_numberP
 double/Particle_py/Particle_py/5937 Event_numberP
 double/Particle_pz/Particle_pz/5937 Event_numberP
 int/Particle_status/Particle_status/5937 Event_numberP
+double/Particle_x/Particle_x/5937 Event_numberP
+double/Particle_y/Particle_y/5937 Event_numberP
+double/Particle_z/Particle_z/5937 Event_numberP
 double/Xsection_error/Xsection_error/1 
 double/Xsection_value/Xsection_value/1 

@@ -1,6 +1,6 @@
 #----------------------------------------------------------------------------
 # Description: Makefile to build analyzers
-# Created:     Mon Dec  4 00:43:33 2017 by mkanalyzer.py
+# Created:     Mon Dec  4 16:20:33 2017 by mkanalyzer.py
 # Author:      Shakespeare's ghost
 #----------------------------------------------------------------------------
 ifndef ROOTSYS
@@ -55,9 +55,8 @@ objects	:= $(subst $(srcdir)/,$(tmpdir)/,$(sources:.cc=.o))
 # 	Define which compilers and linkers to use
 #-----------------------------------------------------------------------
 # If clang++ exists use it, otherwise use g++
-COMPILER:= $(shell which clang++ >& $(HOME)/.cxx; tail $(HOME)/.cxx)
-COMPILER:= $(shell basename "$(COMPILER)")
-ifeq ($(COMPILER),clang++)
+COMPILER:= $(shell which clang++)
+ifneq ($(COMPILER),)
 CXX     := clang++
 LINK	:= clang++
 else
@@ -101,7 +100,7 @@ LDFLAGS := -g
 
 # 	Libraries
 
-LIBS	:=  $(shell root-config --libs) -L$(libdir) -lMinuit  -lMathMore -lMathCore
+LIBS	:=  $(shell root-config --libs) -L$(libdir) -lMinuit -lMathCore
 
 sharedlib := $(libdir)/libtnm$(LDEXT)
 
@@ -132,7 +131,7 @@ $(applications)	: %	: $(tmpdir)/%.o  $(sharedlib)
 
 $(appobjects)	: $(tmpdir)/%.o	: %.cc
 	@echo "---> Compiling application `basename $<`" 
-	$(AT)$(CXX) $(CXXFLAGS) $(CPPFLAGS)  $< -o $@ >& $*.FAILED
+	$(AT)$(CXX) $(CXXFLAGS) $(CPPFLAGS)  $< -o $@ # >& $*.FAILED
 	@rm -rf $*.FAILED
 
 $(sharedlib)	: $(objects)
@@ -141,13 +140,13 @@ $(sharedlib)	: $(objects)
 
 $(objects)	: $(tmpdir)/%.o	: $(srcdir)/%.cc
 	@echo "---> Compiling `basename $<`" 
-	$(AT)$(CXX) $(CXXFLAGS) $(CPPFLAGS)  $< -o $@ >& $*.FAILED
+	$(AT)$(CXX) $(CXXFLAGS) $(CPPFLAGS)  $< -o $@ # >& $*.FAILED
 	$(AT)rm -rf $*.FAILED
 
 $(cintsrc)  : $(header) $(linkdef)
 	@echo "---> Generating dictionary `basename $@`"
 	$(AT)$(CINT) -f $@ -c -I. -Iinclude -I$(ROOTSYS)/include $+
-	$(AT)find $(srcdir) -name "*.pcm" -exec mv {} $(libdir) \;
+	$(AT)mv $(srcdir)/*.pcm $(libdir)
 
 # 	Define clean up rules
 clean   :

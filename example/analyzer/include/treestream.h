@@ -46,7 +46,6 @@
 //          22-Nov-2010 Allow reading of multiple trees using friend
 //                      mechanism
 //          22-Nov-2011 Handle storing of strings
-//          06-May-2017 Handle instrinsic vector types (from 35,000 feet!)
 //$Revision: 1.5 $
 //----------------------------------------------------------------------------
 #include <vector>
@@ -72,18 +71,17 @@
 struct Field
 {
   Field() 
-  : srctype(' '),
-    iotype(' '),
-    isvector(false),
-    iscounter(false),
-    useROOT(false),
-    maxsize(0),
-    branch(0),
-    leaf(0),
-    address(0),
-    branchname(""),
-    leafname(""),
-    fullname("")
+    : srctype(' '),
+      iotype(' '),
+      isvector(false),
+      iscounter(false),
+      maxsize(0),
+      branch(0),
+      leaf(0),
+      address(0),
+      branchname(""),
+      leafname(""),
+      fullname("")
   {}
   
   virtual ~Field() {}
@@ -92,13 +90,12 @@ struct Field
   char   iotype;          /// Input/Output type
   bool   isvector;        /// True if vector type
   bool   iscounter;       /// true if this is a leaf counter
-  bool   useROOT;         /// use ROOT to handle intrinsic vector types  
   int    maxsize;         /// Maximum number of elements in source variable
-
-
+  
   TBranch* branch;        /// Branch pertaining to source
   TLeaf*   leaf;          /// Leaf pertaining to source
   void*    address;       /// Source address
+  
   std::string branchname; /// Name of branch
   std::string leafname;   /// Name of T-leaf!
   std::string fullname;   /// Full name of branch/T-leaf!
@@ -230,6 +227,12 @@ class itreestream
   ///
   void   select(std::string namen, unsigned short& datum);
 
+  ///
+  void   select(std::string namen, std::string& datum);
+
+//   ///
+//   void   select(std::string namen, std::string& datum);
+
   /** Specify the name of a vector-valued variable to be read and give the
       address of a buffer into which its values are to be written. 
       The size of the (vector) buffer determines the maximum number of elements
@@ -239,59 +242,35 @@ class itreestream
       <br>
       <b>Note</b>: The type of the buffer need not match that of the variable.
   */
- 
-  void   select(std::string namen, std::vector<double>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<double>& data);
 
   ///
-  void   select(std::string namen, std::vector<float>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<float>& data);
 
   ///
-  void   select(std::string namen, std::vector<long>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<long>& data);
 
   ///
-  void   select(std::string namen, std::vector<int>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<int>& data);
 
   ///
-  void   select(std::string namen, std::vector<short>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<short>& data);
 
   ///
-  void   select(std::string namen, std::vector<bool>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<bool>& data);
 
   ///
-  void   select(std::string namen, std::vector<char>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<char>& data);
 
   ///
-  void   select(std::string namen, std::string& datum,
-		bool useroot=true);
+  void   select(std::string namen, std::vector<unsigned long>& data);
 
   ///
-  void   select(std::string namen, std::vector<unsigned long>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<unsigned int>& data);
 
   ///
-  void   select(std::string namen, std::vector<unsigned int>& data,
-		bool useroot=false);
+  void   select(std::string namen, std::vector<unsigned short>& data);
 
-  ///
-  void   select(std::string namen, std::vector<unsigned short>& data,
-		bool useroot=false);
-
-  ///
-  void   select(std::string namen, std::vector<std::vector<int> >& data,
-		bool useroot=true);
-  
-  ///
-  void   select(std::string namen, std::vector<std::string>& data,
-		bool useroot=true);
-  
-  
   /** Read tree with ordinal value <i>entry</i>. 
       Return the ordinal value of the
       entry within the current tree.
@@ -364,7 +343,6 @@ class itreestream
   
   int     _bufoffset;
   int     _bufcount;
-  std::string _treename;
   
   std::map<std::string, int> _bufmap;
   std::vector<std::string>  branchname;
@@ -378,12 +356,12 @@ class itreestream
   void _getbranches(TBranch* branch, int depth);
   void _getleaf    (TBranch* branch, TLeaf* leaf=0);
   void _select     (std::string name, void* address, int maxsize, 
-                    char srctype, bool isvector=false,
-		    bool useROOT_=false);
+                    char srctype, bool isvector=false);
   void _update();
   void _gettree(TDirectory* dir, int depth=0);
 
   bool _delete;
+  std::string _treename;
 };
 
 /// Model an output stream of trees of the same species.
@@ -469,12 +447,6 @@ class otreestream
   ///
   void   add(std::string namen, std::vector<int>& data);
 
-  ///
-  void   add(std::string namen, std::vector<std::vector<int> >& data);
-
-  ///
-  void   add(std::string namen, std::vector<std::string>& data);
-  
   ///
   void   add(std::string namen, std::vector<short>& data);
 

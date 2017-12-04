@@ -27,11 +27,12 @@
 #         23 : outgoing
 #         24 : outgoing, nonperturbatively kicked out in diffraction
 #
-# Created: fall 2017 Harrison B. Prosper
+# Created: fall   2017 Harrison B. Prosper
+# Updated: 04-Dec-2017 HBP add creation vertex (x,y,z) of particles.
 # -----------------------------------------------------------------------
 import os, sys, ROOT
 from string import split, strip, atoi, atof, upper
-from math import *
+from math import sqrt
 from time import ctime
 from pnames import particleName
 # -----------------------------------------------------------------------
@@ -111,6 +112,11 @@ class hepmcstream:
         double PDF_x2f;
         int    PDF_id1;
         int    PDF_id2;
+
+        double Particle_x[%(size)d];
+        double Particle_y[%(size)d];
+        double Particle_z[%(size)d];
+        double Particle_ctau[%(size)d];
 
         double Particle_barcode[%(size)d];
         int    Particle_pid[%(size)d];
@@ -264,6 +270,10 @@ class hepmcstream:
                 # VERTEX
                 vbarcode = atoi(token[1])
                 self.vertex[vbarcode] = [-1, -1]
+                x    = atof(token[3])
+                y    = atof(token[4])
+                z    = atof(token[5])
+                ctau = atof(token[6])
                 nout = atoi(token[8])
                 if debug > 0:
                     if debug > 1:
@@ -287,6 +297,11 @@ class hepmcstream:
                             index = bag.Event_numberP
                             bag.Event_numberP += 1
 
+                            bag.Particle_x[index]       = x
+                            bag.Particle_y[index]       = y
+                            bag.Particle_z[index]       = z
+                            bag.Particle_ctau[index]    = ctau
+                            
                             bag.Particle_barcode[index] = atoi(token[1])
                             bag.Particle_pid[index]     = atoi(token[2])
                             bag.Particle_px[index]      = atof(token[3])
