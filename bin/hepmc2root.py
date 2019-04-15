@@ -29,9 +29,13 @@
 #
 # Created: fall   2017 Harrison B. Prosper
 # Updated: 04-Dec-2017 HBP add creation vertex (x,y,z) of particles.
+#          15-Apr-2019 HBP test that ROOT can be imported
 # -----------------------------------------------------------------------
-import os, sys, ROOT
-from string import split, strip, atoi, atof, upper
+import os, sys
+try:
+    import ROOT
+except:
+    sys.exit('\n\t*** This program uses ROOT! ***\n')
 from math import sqrt
 from time import ctime
 from pnames import particleName
@@ -44,14 +48,15 @@ TREENAME= "Events"
 MAXPART = 5000
 debug = 0
 
-class hepmcstream:
+class hepmc2root:
     
     def __init__(self, filename, outfilename=None, treename=TREENAME, complevel=2):
 
         # check that file exists
         
         if not os.path.exists(filename):
-            sys.exit("** hepmcstream: can't open file %s" % filename)
+            sys.exit("** hepmc2root.py: can't open file %s" % \
+                         filename)
         self.inp = open(filename)
         inp = self.inp
 
@@ -61,16 +66,17 @@ class hepmcstream:
         version = None
         for line in inp:
             self.header.append(line)
-            version = strip(line)
+            version = str.strip(line)
             if version == '': continue
-            token = split(version)
+            token = str.split(version)
             if token[0] == 'HepMC::Version':
                 version = token[1]
             break
         else:
-            sys.exit("** hepmcstream: format problem in file %s" % filename)
+            sys.exit("** hepmc2root.py: format problem in file %s" % \
+                         filename)
             
-        print "HepMC version: %s" % version
+        print("HepMC version: %s" % version)
 
         # skip start of listing
         
@@ -84,7 +90,8 @@ class hepmcstream:
             outfilename = '%s.root' % nameonly(filename)
             
         self.file = ROOT.TFile(outfilename, "recreate")
-        self.tree = ROOT.TTree(treename, 'created: %s HepMC %s' % (ctime(), version))
+        self.tree = ROOT.TTree(treename, 'created: %s HepMC %s' % \
+                                   (ctime(), version))
 
         # define event struct
         
@@ -143,23 +150,23 @@ class hepmcstream:
         # create branches
         
         self.branch = []
-        recs = split(self.struct, '\n')[1:-1]
+        recs = str.split(self.struct, '\n')[1:-1]
         for rec in recs:
-            t = split(rec)
+            t = str.split(rec)
             if len(t) == 0: continue
                 
             fmt, name = t
-            T = upper(fmt[0])
+            T = str.upper(fmt[0])
             name = name[:-1] # skip ";"
             # check for variable length array
             if name[-1] == ']':
-                field = split(name, '[')[0]
+                field = str.split(name, '[')[0]
                 fmt   = '%s[Event_numberP]/%s' % (field, T)
             else:
                 field = name
                 fmt   = '%s/%s' % (field, T)
             self.branch.append(self.tree.Branch(field,
-                                                    ROOT.AddressOf(self.bag, field),
+                                                ROOT.AddressOf(self.bag, field),
                                                     fmt))
         # list branches
         
@@ -167,13 +174,13 @@ class hepmcstream:
             bname = b.GetName()
             leaves= b.GetListOfLeaves()
             if leaves == None:
-                sys.exit("** hepmcstream: no list of leaves found for branch %s" % bname)
+                sys.exit("** hepmc2root: no list of leaves found for branch %s" % bname)
             leaf = leaves[0]
             if leaf == None:
-                sys.exit("** hepmcstream: no leaf found for branch %s" % bname)
+                sys.exit("** hepmc2root: no leaf found for branch %s" % bname)
             leafname = leaf.GetName()
             leaftype = leaf.GetTypeName()
-            print "%4d\t%-20s\t%s" % (ii+1, bname, leaftype)
+            print("%4d\t%-20s\t%s" % (ii+1, bname, leaftype))
             
     def __del__(self):
         self.tree.Write("", ROOT.TObject.kOverwrite)
@@ -208,90 +215,90 @@ class hepmcstream:
         token = None
         for line in inp:
             self.event.append(line)
-            token = split(line)
+            token = str.split(line)
             key   = token[0]
             if key != 'E': continue
             if debug > 0:
-                print 'BEGIN event'
+                print('BEGIN event')
             break
         else:
             return False
 
         if token == None:
-            sys.exit("** hepmcstream: can't find start of event")
+            sys.exit("** hepmc2root.py: can't find start of event")
 
-        bag.Event_number     = atoi(token[1])
-        bag.Event_numberMP   = atoi(token[2])  # number of multi-particle interactions
-        bag.Event_scale      = atof(token[3])
-        bag.Event_alphaQCD   = atof(token[4])
-        bag.Event_alphaQED   = atof(token[5])
-        bag.Event_processID  = atoi(token[6])
-        bag.Event_barcodeSPV = atoi(token[7])
-        bag.Event_numberV    = atoi(token[8])  # number of vertices in event
-        bag.Event_barcodeBP1 = atoi(token[9])  # barcode beam particle 1 
-        bag.Event_barcodeBP2 = atoi(token[10]) # barcode beam particle 2
+        bag.Event_number     = int(token[1])
+        bag.Event_numberMP   = int(token[2])  # number of multi-particle interactions
+        bag.Event_scale      = float(token[3])
+        bag.Event_alphaQCD   = float(token[4])
+        bag.Event_alphaQED   = float(token[5])
+        bag.Event_processID  = int(token[6])
+        bag.Event_barcodeSPV = int(token[7])
+        bag.Event_numberV    = int(token[8])  # number of vertices in event
+        bag.Event_barcodeBP1 = int(token[9])  # barcode beam particle 1 
+        bag.Event_barcodeBP2 = int(token[10]) # barcode beam particle 2
         bag.Event_numberP    = 0               # number of particles
         
         if debug > 0:
-            print "\tbarcode 1: %d" % self.barcode1
-            print "\tbarcode 2: %d" % self.barcode2
+            print("\tbarcode 1: %d" % self.barcode1)
+            print("\tbarcode 2: %d" % self.barcode2)
 
         self.vertex = {}
 
         for line in inp:
             self.event.append(line)
-            token = split(line)
+            token = str.split(line)
             key = token[0]
 
             if key == 'C':
                 # CROSS SECTION
-                bag.Xsection_value = atof(token[1])
-                bag.Xsection_error = atof(token[2])
+                bag.Xsection_value = float(token[1])
+                bag.Xsection_error = float(token[2])
                 if debug > 0:
-                    print "\tcross section: %10.3e +\- %10.3e pb" % \
-                      (bag.Xsection_value, bag.Xsection_error)
+                    print("\tcross section: %10.3e +\- %10.3e pb" % \
+                      (bag.Xsection_value, bag.Xsection_error))
                       
             elif key == 'F':
                 # PDF INFO
-                bag.PDF_parton1  = atoi(token[1])
-                bag.PDF_parton2  = atoi(token[2])
-                bag.PDF_x1       = atof(token[3])
-                bag.PDF_x2       = atof(token[4])
-                bag.PDF_Q2       = atof(token[5])
-                bag.PDF_x1f      = atof(token[6])
-                bag.PDF_x2f      = atof(token[7])
-                bag.PDF_id1      = atoi(token[8])
-                bag.PDF_id2      = atoi(token[9])
+                bag.PDF_parton1  = int(token[1])
+                bag.PDF_parton2  = int(token[2])
+                bag.PDF_x1       = float(token[3])
+                bag.PDF_x2       = float(token[4])
+                bag.PDF_Q2       = float(token[5])
+                bag.PDF_x1f      = float(token[6])
+                bag.PDF_x2f      = float(token[7])
+                bag.PDF_id1      = int(token[8])
+                bag.PDF_id2      = int(token[9])
 
                 if debug > 0:
-                    print '\tfound PDF info'
+                    print('\tfound PDF info')
 
             elif key == 'V':
                 # VERTEX
-                vbarcode = atoi(token[1])
+                vbarcode = int(token[1])
                 self.vertex[vbarcode] = [-1, -1]
-                x    = atof(token[3])
-                y    = atof(token[4])
-                z    = atof(token[5])
-                ctau = atof(token[6])
-                nout = atoi(token[8])
+                x    = float(token[3])
+                y    = float(token[4])
+                z    = float(token[5])
+                ctau = float(token[6])
+                nout = int(token[8])
                 if debug > 0:
                     if debug > 1:
-                        print "\t%s" % token
-                    print '\tvertex(barcode): %10d' % vbarcode
-                    print '\tvertex(count):   %10d' % nout
+                        print("\t%s" % token)
+                    print('\tvertex(barcode): %10d' % vbarcode)
+                    print('\tvertex(count):   %10d' % nout)
 
                 # particles pertaining to this vertex follow immediately
                 # after the vertex
                 for ii in xrange(nout):
                     for line in inp:
                         self.event.append(line)
-                        token  = split(line)
+                        token  = str.split(line)
                         if debug > 1:
-                            print "\t%s" % token
+                            print("\t%s" % token)
                         key    = token[0]
                         if key != 'P':
-                            sys.exit("** hepmcstream: faulty event record\n" + line)
+                            sys.exit("** hepmc2root: faulty event record\n" + line)
 
                         if bag.Event_numberP < MAXPART:
                             index = bag.Event_numberP
@@ -302,15 +309,15 @@ class hepmcstream:
                             bag.Particle_z[index]       = z
                             bag.Particle_ctau[index]    = ctau
                             
-                            bag.Particle_barcode[index] = atoi(token[1])
-                            bag.Particle_pid[index]     = atoi(token[2])
-                            bag.Particle_px[index]      = atof(token[3])
-                            bag.Particle_py[index]      = atof(token[4])
-                            bag.Particle_pz[index]      = atof(token[5])
-                            bag.Particle_energy[index]  = atof(token[6])
-                            bag.Particle_mass[index]    = atof(token[7])
-                            bag.Particle_status[index]  = atoi(token[8])
-                            self.pvertex[index]         = atoi(token[11])
+                            bag.Particle_barcode[index] = int(token[1])
+                            bag.Particle_pid[index]     = int(token[2])
+                            bag.Particle_px[index]      = float(token[3])
+                            bag.Particle_py[index]      = float(token[4])
+                            bag.Particle_pz[index]      = float(token[5])
+                            bag.Particle_energy[index]  = float(token[6])
+                            bag.Particle_mass[index]    = float(token[7])
+                            bag.Particle_status[index]  = int(token[8])
+                            self.pvertex[index]         = int(token[11])
 
                             if ii == 0:
                                 self.vertex[vbarcode][0] = index
@@ -343,7 +350,7 @@ class hepmcstream:
         
     def printTable(self):
         for ii in xrange(self.bag.Event_numberP):
-            print "%4d\t%s" % (ii, self.__str__(ii))
+            print("%4d\t%s" % (ii, self.__str__(ii)))
 # -----------------------------------------------------------------------    
 def main():
     argv = sys.argv[1:]
@@ -360,16 +367,16 @@ def main():
     else:
         outfilename = '%s.root' % nameonly(filename)
 
-    stream = hepmcstream(filename, outfilename)
+    stream = hepmc2root(filename, outfilename)
 
     ii = 0
     while stream():
-        if ii % 100 == 0:
-            print ii
+        if ii % 1000 == 0:
+            print(ii)
         ii += 1
 # -----------------------------------------------------------------------
 try:
     main()
 except KeyboardInterrupt:
-    print '\nciao!'
+    print('\nciao!')
     

@@ -30,8 +30,10 @@
 # Updated: 04-Dec-2017 HBP add creation vertex (x,y,z) of particles.
 # -----------------------------------------------------------------------
 import os, sys
-import pandas as pd
-from string import split, strip, atoi, atof, upper
+try:
+    import pandas as pd
+except:
+    sys.exit("\n\t*** you need to install the pandas python module\n")
 from math import sqrt
 from time import ctime
 from pnames import particleName
@@ -44,14 +46,14 @@ TREENAME= "Events"
 MAXPART = 5000
 debug = 0
 
-class hepmcstream:
+class hepmc2pandas:
     
     def __init__(self, filename):
 
         # check that file exists
         
         if not os.path.exists(filename):
-            sys.exit("** hepmcstream: can't open file %s" % filename)
+            sys.exit("** hepmc2pandas: can't open file %s" % filename)
         self.inp = open(filename)
         inp = self.inp
 
@@ -61,16 +63,16 @@ class hepmcstream:
         version = None
         for line in inp:
             self.header.append(line)
-            version = strip(line)
+            version = str.strip(line)
             if version == '': continue
-            token = split(version)
+            token = str.split(version)
             if token[0] == 'HepMC::Version':
                 version = token[1]
             break
         else:
-            sys.exit("** hepmcstream: format problem in file %s" % filename)
+            sys.exit("** hepmc2pandas: format problem in file %s" % filename)
             
-        print "HepMC version: %s" % version
+        print("HepMC version: %s" % version)
 
         # skip start of listing
         
@@ -163,88 +165,88 @@ class hepmcstream:
         # find start of event        
         token = None
         for line in inp:
-            token = split(line)
+            token = str.split(line)
             key   = token[0]
             if key != 'E': continue
             if debug > 0:
-                print 'BEGIN event'
+                print('BEGIN event')
             break
         else:
             return False
 
         if token == None:
-            sys.exit("** hepmcstream: can't find start of event")
+            sys.exit("** hepmc2pandas: can't find start of event")
 
-        e['Event_number'].append(atoi(token[1]))
-        e['Event_numberMP'].append(atoi(token[2]))
-        e['Event_scale'].append(atof(token[3]))
-        e['Event_alphaQCD'].append(atof(token[4]))
-        e['Event_alphaQED'].append(atof(token[5]))
-        e['Event_processID'].append(atoi(token[6]))
-        e['Event_barcodeSPV'].append(atoi(token[7]))
-        e['Event_numberV'].append(atoi(token[8]))     # number of vertices in event
-        e['Event_barcodeBP1'].append(atoi(token[9]))  # barcode beam particle 1 
-        e['Event_barcodeBP2'].append(atoi(token[10])) # barcode beam particle 2
-        e['Event_numberP'].append(0)                  # number of particles
+        e['Event_number'].append(int(token[1]))
+        e['Event_numberMP'].append(int(token[2]))
+        e['Event_scale'].append(float(token[3]))
+        e['Event_alphaQCD'].append(float(token[4]))
+        e['Event_alphaQED'].append(float(token[5]))
+        e['Event_processID'].append(int(token[6]))
+        e['Event_barcodeSPV'].append(int(token[7]))
+        e['Event_numberV'].append(int(token[8]))     # number of vertices in event
+        e['Event_barcodeBP1'].append(int(token[9]))  # barcode beam particle 1 
+        e['Event_barcodeBP2'].append(int(token[10])) # barcode beam particle 2
+        e['Event_numberP'].append(0)                 # number of particles
         
         if debug > 2:
-            print "\tbarcode 1: %d" % e['Event_barcodeBP1'][-1]
-            print "\tbarcode 2: %d" % e['Event_barcodeBP2'][-1]
+            print("\tbarcode 1: %d" % e['Event_barcodeBP1'][-1])
+            print("\tbarcode 2: %d" % e['Event_barcodeBP2'][-1])
 
         self.vertex = {}
 
         for line in inp:
-            token = split(line)
+            token = str.split(line)
             key = token[0]
 
             if key == 'C':
                 # CROSS SECTION
-                e['Xsection_value'].append(atof(token[1]))
-                e['Xsection_error'].append(atof(token[2]))
+                e['Xsection_value'].append(float(token[1]))
+                e['Xsection_error'].append(float(token[2]))
                 if debug > 0:
-                    print "\tcross section: %10.3e +\- %10.3e pb" % \
-                      (e['Xsection_value'][-1], e['Xsection_error'][-1])
+                    print("\tcross section: %10.3e +\- %10.3e pb" % \
+                      (e['Xsection_value'][-1], e['Xsection_error'][-1]))
                       
             elif key == 'F':
                 # PDF INFO
-                e['PDF_parton1'].append(atoi(token[1]))
-                e['PDF_parton2'].append(atoi(token[2]))
-                e['PDF_x1'].append(atof(token[3]))
-                e['PDF_x2'].append(atof(token[4]))
-                e['PDF_Q2'].append(atof(token[5]))
-                e['PDF_x1f'].append(atof(token[6]))
-                e['PDF_x2f'].append(atof(token[7]))
-                e['PDF_id1'].append(atoi(token[8]))
-                e['PDF_id2'].append(atoi(token[9]))
+                e['PDF_parton1'].append(int(token[1]))
+                e['PDF_parton2'].append(int(token[2]))
+                e['PDF_x1'].append(float(token[3]))
+                e['PDF_x2'].append(float(token[4]))
+                e['PDF_Q2'].append(float(token[5]))
+                e['PDF_x1f'].append(float(token[6]))
+                e['PDF_x2f'].append(float(token[7]))
+                e['PDF_id1'].append(int(token[8]))
+                e['PDF_id2'].append(int(token[9]))
 
                 if debug > 0:
-                    print '\tfound PDF info'
+                    print('\tfound PDF info')
 
             elif key == 'V':
                 # VERTEX
-                vbarcode = atoi(token[1])
+                vbarcode = int(token[1])
                 self.vertex[vbarcode] = [-1, -1]
-                x    = atof(token[3])
-                y    = atof(token[4])
-                z    = atof(token[5])
-                ctau = atof(token[6])
-                nout = atoi(token[8])
+                x    = float(token[3])
+                y    = float(token[4])
+                z    = float(token[5])
+                ctau = float(token[6])
+                nout = int(token[8])
                 if debug > 0:
                     if debug > 2:
-                        print "\t%s" % token
-                    print '\tvertex(barcode): %10d' % vbarcode
-                    print '\tvertex(count):   %10d' % nout
+                        print("\t%s" % token)
+                    print('\tvertex(barcode): %10d' % vbarcode)
+                    print('\tvertex(count):   %10d' % nout)
 
                 # particles pertaining to this vertex follow immediately
                 # after the vertex
                 for ii in xrange(nout):
                     for line in inp:
-                        token  = split(line)
+                        token  = str.split(line)
                         if debug > 0:
-                            print "\t%s" % token
+                            print("\t%s" % token)
                         key    = token[0]
                         if key != 'P':
-                            sys.exit("** hepmcstream: faulty event record\n" + line)
+                            sys.exit("** hepmc2pandas: faulty event record\n" + line)
 
                         if e['Event_numberP'][-1] < MAXPART:
                             index = e['Event_numberP'][-1]
@@ -255,20 +257,20 @@ class hepmcstream:
                             p['Particle_z'].append(z)
                             p['Particle_ctau'].append(ctau)
                             
-                            p['Particle_barcode'].append(atoi(token[1]))
-                            p['Particle_pid'].append(atoi(token[2]))
+                            p['Particle_barcode'].append(int(token[1]))
+                            p['Particle_pid'].append(int(token[2]))
                             
                             pid = p['Particle_pid'][-1]
                             p['Particle_name'].append(particleName(pid))
                             p['Particle_d1'].append(-1)
                             p['Particle_d2'].append(-1)
-                            p['Particle_px'].append(atof(token[3]))
-                            p['Particle_py'].append(atof(token[4]))
-                            p['Particle_pz'].append(atof(token[5]))
-                            p['Particle_energy'].append(atof(token[6]))
-                            p['Particle_mass'].append(atof(token[7]))
-                            p['Particle_status'].append(atoi(token[8]))
-                            self.pvertex[index] = atoi(token[11])
+                            p['Particle_px'].append(float(token[3]))
+                            p['Particle_py'].append(float(token[4]))
+                            p['Particle_pz'].append(float(token[5]))
+                            p['Particle_energy'].append(float(token[6]))
+                            p['Particle_mass'].append(float(token[7]))
+                            p['Particle_status'].append(int(token[8]))
+                            self.pvertex[index] = int(token[11])
 
                             if ii == 0:
                                 self.vertex[vbarcode][0] = index
@@ -297,15 +299,15 @@ class hepmcstream:
             return False
 
     def save(self, filename):
-        print "=> saving to file: %s" % filename
+        print("=> saving to file: %s" % filename)
         self.event['Particle'] = self.plist
         df = pd.DataFrame(self.event)
         df.to_pickle(filename)
-        print "=> done!"
+        print("=> done!")
         
     def printTable(self):
         for ii in xrange(self.event['Event_numberP'][-1]):
-            print "%4d\t%s" % (ii, self.__str__(ii))
+            print("%4d\t%s" % (ii, self.__str__(ii)))
 # -----------------------------------------------------------------------    
 def main():
     argv = sys.argv[1:]
@@ -322,12 +324,12 @@ def main():
     else:
         outfilename = '%s.pkl' % nameonly(filename)
 
-    stream = hepmcstream(filename)
+    stream = hepmc2pandas(filename)
 
     ii = 0
     while stream():
-        if ii % 100 == 0:
-            print ii
+        if ii % 1000 == 0:
+            print(ii)
         ii += 1
     stream.save(outfilename)
 # -----------------------------------------------------------------------
