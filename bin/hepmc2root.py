@@ -30,6 +30,7 @@
 # Created: fall   2017 Harrison B. Prosper
 # Updated: 04-Dec-2017 HBP add creation vertex (x,y,z) of particles.
 #          15-Apr-2019 HBP test that ROOT can be imported
+#          31-Jan-2020 HBP make compatible with Python 3
 # -----------------------------------------------------------------------
 import os, sys
 try:
@@ -290,7 +291,7 @@ class hepmc2root:
 
                 # particles pertaining to this vertex follow immediately
                 # after the vertex
-                for ii in xrange(nout):
+                for ii in range(nout):
                     for line in inp:
                         self.event.append(line)
                         token  = str.split(line)
@@ -329,9 +330,9 @@ class hepmc2root:
                         return False
                     
             if len(self.vertex) >= bag.Event_numberV:
-                for index in xrange(bag.Event_numberP):
+                for index in range(bag.Event_numberP):
                     code = self.pvertex[index]
-                    if self.vertex.has_key(code):
+                    if code in self.vertex:
                         d = self.vertex[code]
                         bag.Particle_d1[index] = d[0]
                         bag.Particle_d2[index] = d[1]
