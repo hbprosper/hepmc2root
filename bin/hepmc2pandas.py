@@ -239,7 +239,7 @@ class hepmc2pandas:
 
                 # particles pertaining to this vertex follow immediately
                 # after the vertex
-                for ii in xrange(nout):
+                for ii in range(nout):
                     for line in inp:
                         token  = str.split(line)
                         if debug > 0:
@@ -281,9 +281,9 @@ class hepmc2pandas:
                         return False
                     
             if len(self.vertex) >= e['Event_numberV'][-1]:
-                for index in xrange(e['Event_numberP'][-1]):
+                for index in range(e['Event_numberP'][-1]):
                     code = self.pvertex[index]
-                    if self.vertex.has_key(code):
+                    if code in self.vertex:
                         d = self.vertex[code]
 
                         p['Particle_d1'][index] = d[0]
@@ -306,7 +306,7 @@ class hepmc2pandas:
         print("=> done!")
         
     def printTable(self):
-        for ii in xrange(self.event['Event_numberP'][-1]):
+        for ii in range(self.event['Event_numberP'][-1]):
             print("%4d\t%s" % (ii, self.__str__(ii)))
 # -----------------------------------------------------------------------    
 def main():
@@ -336,5 +336,5 @@ def main():
 try:
     main()
 except KeyboardInterrupt:
-    print '\nciao!'
+    print('\nciao!')
     

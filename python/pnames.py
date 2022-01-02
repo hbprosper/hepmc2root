@@ -1320,7 +1320,7 @@ PDGNAME[ 2000016] = "susy-nu_tauR"
 PDGNAME[-2000016] = "susy-nu_tauR~"
 
 def particleName(pid):
-    if PDGNAME.has_key(pid):
+    if pid in PDGNAME:
         return PDGNAME[pid]
     else:
         return 'noname'
