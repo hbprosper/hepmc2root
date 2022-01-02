@@ -167,7 +167,7 @@ class hepmc2root:
                 field = name
                 fmt   = '%s/%s' % (field, T)
             self.branch.append(self.tree.Branch(field,
-                                                ROOT.AddressOf(self.bag, field),
+                                                ROOT.addressof(self.bag, field),
                                                     fmt))
         # list branches
         
